@@ -35,7 +35,8 @@ public class User {
     private LocalDateTime joinDate;
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("'COMMON'") //String타입이라면 상관없지만 이넘타입이라면 ''로 감싸주어야 한다.
-    private Role role; //유저 권한
+//    @ColumnDefault("'COMMON'") //String타입이라면 상관없지만 이넘타입이라면 ''로 감싸주어야 한다.
+    @Builder.Default
+    private Role role = Role.COMMON; //유저 권한
 
 }
