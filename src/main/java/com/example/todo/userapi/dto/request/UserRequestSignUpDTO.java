@@ -25,11 +25,12 @@ public class UserRequestSignUpDTO {
     @Size(min = 2, max = 5)
     private String userName;
 
-    public User toEntity() {
+    public User toEntity(String uploadedFilePath) {
         return User.builder()
                 .email(this.email)
                 .password(this.password)
                 .userName(this.userName)
+                .profileImg(uploadedFilePath)
                 .build();
     }
 

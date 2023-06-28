@@ -13,8 +13,14 @@ import com.example.todo.userapi.entity.User;
 import com.example.todo.userapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -25,8 +31,11 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final TokenProvider tokenProvider;
 
+    @Value("${upload.path}")
+    private String uploadRootPath;
+
     //회원 가입 처리
-    public UserSignUpResponseDTO create(final UserRequestSignUpDTO dto)
+    public UserSignUpResponseDTO create(final UserRequestSignUpDTO dto, String uploadedFilePath)
         throws RuntimeException {
 
         String email = dto.getEmail();
@@ -43,7 +52,7 @@ public class UserService {
         dto.setPassword(encoder.encode(dto.getPassword()));
 
         //유저 엔터티로 변환
-        User user = dto.toEntity();
+        User user = dto.toEntity(uploadedFilePath);
 
         User saved = userRepository.save(user);
 
@@ -103,5 +112,28 @@ public class UserService {
         String token = tokenProvider.createToken(saved);
 
         return new LoginResponseDTO(saved, token);
+    }
+
+    /**
+     * 업로드된 파일을 서버에 저장하고 저장 경로를 리턴
+     * @Param originalFile - 업로드 된 파일의 정보
+     * @return 실제로 저장된 이미지 경로
+     */
+
+    public String uploadProfileImage(MultipartFile originalFile) throws IOException {
+
+        //루트 디렉토리가 존재하는 지 확인 후 존재하지 않으면 생성
+        File RootDir = new File(uploadRootPath);
+        if(!RootDir.exists()) RootDir.mkdir();
+
+        // 파일명을 유니크하게 변경
+        String uniqueFileName = UUID.randomUUID() + "_" + originalFile.getOriginalFilename();
+
+        // 파일을 저장
+        File uploadFile = new File(uploadRootPath + "/" + uniqueFileName);
+        originalFile.transferTo(uploadFile);
+
+        return uniqueFileName;
+
     }
 }
