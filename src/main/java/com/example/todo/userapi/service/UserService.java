@@ -136,4 +136,10 @@ public class UserService {
         return uniqueFileName;
 
     }
+
+    public String findProfilePath(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+        return uploadRootPath + "/" + user.getProfileImg();
+    }
 }
