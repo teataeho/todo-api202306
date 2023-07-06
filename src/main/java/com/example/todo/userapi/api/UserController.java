@@ -27,6 +27,7 @@ import java.io.File;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("api/auth")
+@CrossOrigin
 public class UserController {
 
     private final UserService userService;
